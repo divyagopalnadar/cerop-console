@@ -2,8 +2,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import App, { CREDIT } from '../App'
-import { operations } from '../data'
-import { cases, statusFor } from '../data/cases'
+import { operations, report } from '../data'
 
 function go(hash: string) {
   act(() => {
@@ -16,7 +15,7 @@ describe('navigation', () => {
   it('renders the overview by default with an accessible tablist', () => {
     render(<App />)
     const tabs = screen.getAllByRole('tab')
-    expect(tabs).toHaveLength(5)
+    expect(tabs).toHaveLength(6)
     expect(screen.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('tabpanel')).toHaveAttribute('aria-labelledby', 'tab-overview')
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/counterparty fail/)
@@ -37,9 +36,9 @@ describe('navigation', () => {
     const overview = screen.getByRole('tab', { name: 'Overview' })
     overview.focus()
     await user.keyboard('{ArrowRight}')
-    const fin = screen.getByRole('tab', { name: 'Financial layer' })
-    expect(fin).toHaveFocus()
-    expect(fin).toHaveAttribute('tabindex', '0')
+    const next = screen.getByRole('tab', { name: 'Data & EDA' })
+    expect(next).toHaveFocus()
+    expect(next).toHaveAttribute('tabindex', '0')
     expect(overview).toHaveAttribute('tabindex', '-1')
     await user.keyboard('{End}')
     expect(screen.getByRole('tab', { name: 'Methodology' })).toHaveAttribute('aria-selected', 'true')
@@ -50,9 +49,10 @@ describe('navigation', () => {
   })
 
   it('opens a deep link directly', () => {
-    go('#/cases')
+    go('#/timeline')
     render(<App />)
-    expect(screen.getByRole('tab', { name: 'Case queue' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('tab', { name: 'Timeline' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(report.timeline.length)
   })
 
   it('source chips link to the lineage row and highlight it', () => {
@@ -104,11 +104,6 @@ describe('threshold explorer', () => {
     expect(screen.getByTestId('metric-precision')).toHaveTextContent(r?.precision.toFixed(3) ?? '')
     expect(slider).toHaveAttribute('aria-valuetext', expect.stringContaining('0.60'))
     expect(window.location.hash).toBe('#/operations?t=0.60')
-    // Higher cutoff flags fewer orders than the chosen one.
-    const caught = Number(screen.getByTestId('per-caught').textContent)
-    const missed = Number(screen.getByTestId('per-missed').textContent)
-    expect(caught + missed).toBe(548)
-    expect(missed).toBeGreaterThan(89)
   })
 
   it('preset buttons jump to the default and chosen cutoffs', async () => {
@@ -145,58 +140,46 @@ describe('threshold explorer', () => {
   })
 })
 
-describe('case queue', () => {
-  const list = () => screen.getByRole('list', { name: 'Cases' })
-
-  it('labels the queue as illustrative', () => {
-    go('#/cases')
-    render(<App />)
-    expect(screen.getByText('Illustrative cases: not real model output')).toBeInTheDocument()
-  })
-
-  it('filters by status', async () => {
+describe('financial layer', () => {
+  it('shows the deployed Week 5 configuration and the documented matrices', async () => {
     const user = userEvent.setup()
-    go('#/cases')
+    go('#/financial')
     render(<App />)
-    const n = cases.filter((c) => statusFor(c) === 'review').length
-    await user.click(screen.getByRole('radio', { name: `Needs review ${n}` }))
-    expect(within(list()).getAllByRole('listitem').filter((li) => li.dataset.status)).toHaveLength(n)
-    for (const li of within(list()).getAllByRole('listitem').filter((el) => el.dataset.status)) {
-      expect(li.dataset.status).toBe('review')
-    }
+    const deployed = screen.getByText('deployed').closest('tr')
+    expect(deployed).toHaveTextContent('XGB · Week 5 config (refit)')
+    expect(deployed).toHaveTextContent('25/44')
+    const [before, , calibrated] = report.financial_w6.matrices
+    expect(screen.getByRole('table', { name: /Financial test confusion matrix: Before tuning/ })).toHaveTextContent(
+      (before?.tn ?? 0).toLocaleString('en-US'),
+    )
+    await user.click(screen.getByRole('radio', { name: calibrated?.label ?? '' }))
+    const table = screen.getByRole('table', { name: /Financial test confusion matrix: Tuned @ calibrated/ })
+    expect(within(table).getByText(String(calibrated?.fp))).toBeInTheDocument()
+    expect(within(table).getByText(String(calibrated?.tp))).toBeInTheDocument()
   })
+})
 
-  it('filters by layer and search, and shows an empty state that clears', async () => {
-    const user = userEvent.setup()
-    go('#/cases')
+describe('data and EDA', () => {
+  it('renders the documented EDA figures', () => {
+    go('#/data')
     render(<App />)
-    await user.click(screen.getByRole('radio', { name: 'Operations' }))
-    const opsCount = cases.filter((c) => c.layer === 'OPS').length
-    expect(within(list()).getAllByRole('listitem').filter((el) => el.dataset.status)).toHaveLength(opsCount)
-
-    await user.type(screen.getByRole('searchbox', { name: 'Search cases' }), 'kestrel')
-    const rows = within(list()).getAllByRole('listitem').filter((el) => el.dataset.status)
-    expect(rows).toHaveLength(1)
-    expect(rows[0]).toHaveTextContent('SHP-24790')
-
-    await user.type(screen.getByRole('searchbox', { name: 'Search cases' }), 'zzz')
-    expect(screen.getByText('No cases match these filters.')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Clear filters' }))
-    expect(within(list()).getAllByRole('listitem').filter((el) => el.dataset.status)).toHaveLength(cases.length)
+    expect(screen.getByRole('tab', { name: 'Data & EDA' })).toHaveAttribute('aria-selected', 'true')
+    const modes = screen.getByRole('list', { name: 'Late-delivery rate by shipping mode' })
+    expect(within(modes).getAllByRole('listitem')).toHaveLength(4)
+    expect(modes).toHaveTextContent('95.3%')
+    expect(screen.getByRole('table', { name: 'Distribution of shipping delays' })).toHaveTextContent('33.6%')
+    expect(screen.getByRole('list', { name: 'Correlation with bankruptcy' })).toHaveTextContent('\u22120.315')
+    expect(screen.getByText(/Verdict: not supported/)).toBeInTheDocument()
   })
+})
 
-  it('expands the why panel with its drivers', async () => {
-    const user = userEvent.setup()
-    go('#/cases')
-    render(<App />)
-    const btn = screen.getByRole('button', { name: /Why Harbourline Components Ltd\./ })
-    expect(btn).toHaveAttribute('aria-expanded', 'false')
-    const panel = document.getElementById(btn.getAttribute('aria-controls') ?? '')
-    expect(panel).not.toBeVisible()
-    await user.click(btn)
-    expect(btn).toHaveAttribute('aria-expanded', 'true')
-    expect(panel).toBeVisible()
-    expect(panel).toHaveTextContent('Borrowing dependency')
-    expect(panel).toHaveTextContent('Immediate executive intervention')
-  })
+describe('content rules', () => {
+  it.each(['overview', 'data', 'financial', 'operations', 'timeline', 'lineage'])(
+    '%s view has no placeholder or illustrative wording',
+    (view) => {
+      go(`#/${view}`)
+      render(<App />)
+      expect(document.body.textContent ?? '').not.toMatch(/illustrative|placeholder|fictional|not real|mock|sample case/i)
+    },
+  )
 })
