@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CEROP Risk Console</title>
+    <meta
+      name="description"
+      content="An evidence-first console for CEROP, a two-layer ML risk model: counterparty financial distress and late-delivery risk. Every figure is traced to the team's executed notebooks."
+    />
+    <meta name="theme-color" content="#f6f6f3" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0c0e12" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="CEROP Risk Console" />
+    <meta
+      property="og:description"
+      content="Financial distress and late-delivery risk, side by side, with every figure traced to its source cell."
+    />
+    <meta property="og:url" content="https://divyagopalnadar.github.io/cerop-console/" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    />
+
+    <!-- Resolve the theme before first paint so there is no flash. Mirrors src/hooks/useTheme.ts. -->
+    <script>
+      (function () {
+        var pref;
+        try {
+          pref = localStorage.getItem('cerop-theme');
+        } catch (e) {}
+        var theme =
+          pref === 'light' || pref === 'dark'
+            ? pref
+            : matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <p style="padding: 24px; font-family: sans-serif">
+        The CEROP Risk Console needs JavaScript. Source:
+        <a href="https://github.com/divyagopalnadar/cerop-console">github.com/divyagopalnadar/cerop-console</a>
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
