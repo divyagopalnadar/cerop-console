@@ -1,0 +1,102 @@
+.wrap {
+  display: grid;
+  gap: 12px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: minmax(180px, 44%) 1fr;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.track {
+  position: relative;
+  height: 22px;
+}
+
+.zero {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  left: 50%;
+  border-left: 1px solid var(--axis);
+}
+
+.bar {
+  position: absolute;
+  top: 5px;
+  height: 12px;
+}
+
+.bar[data-sign='neg'],
+.swatch[data-sign='neg'] {
+  background: var(--div-neg);
+}
+
+.bar[data-sign='pos'],
+.swatch[data-sign='pos'] {
+  background: var(--div-pos);
+}
+
+.bar[data-sign='neg'] {
+  border-radius: 4px 0 0 4px;
+}
+
+.bar[data-sign='pos'] {
+  border-radius: 0 4px 4px 0;
+}
+
+.value {
+  position: absolute;
+  top: 2px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .item {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}

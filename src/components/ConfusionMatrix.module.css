@@ -1,9 +1,3 @@
-.figure {
-  display: grid;
-  gap: 12px;
-  min-width: 0;
-}
-
 .table {
   width: 100%;
   border-collapse: separate;
@@ -68,8 +62,7 @@
 }
 
 .kind,
-.count,
-.rate {
+.count {
   display: block;
 }
 
@@ -85,24 +78,6 @@
   font-weight: 650;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
-}
-
-.rate {
-  font-size: 12px;
-  opacity: 0.85;
-}
-
-.summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 16px;
-  color: var(--text-muted);
-  font-size: 13px;
-}
-
-.summary b {
-  color: var(--text);
-  font-weight: 600;
 }
 
 @media (max-width: 420px) {
