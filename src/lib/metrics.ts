@@ -1,6 +1,6 @@
 import type { Confusion, SweepRow } from '../data'
 
-export interface DerivedMetrics {
+export interface ConfusionMetrics {
   total: number
   positives: number
   accuracy: number
@@ -12,7 +12,7 @@ export interface DerivedMetrics {
 }
 
 /** Recompute headline metrics from confusion-matrix counts. */
-export function fromConfusion({ tn, fp, fn, tp }: Confusion): DerivedMetrics {
+export function fromConfusion({ tn, fp, fn, tp }: Confusion): ConfusionMetrics {
   const total = tn + fp + fn + tp
   const precision = tp + fp === 0 ? 0 : tp / (tp + fp)
   const recall = tp + fn === 0 ? 0 : tp / (tp + fn)
@@ -26,45 +26,6 @@ export function fromConfusion({ tn, fp, fn, tp }: Confusion): DerivedMetrics {
     f1,
     falsePositiveRate: fp + tn === 0 ? 0 : fp / (fp + tn),
   }
-}
-
-export interface Outcomes {
-  caught: number
-  falseAlarms: number
-  missed: number
-  cleared: number
-  flagged: number
-}
-
-/**
- * Reconstruct outcome counts at one sweep threshold. Recall gives TP exactly
- * (TP = recall x positives); precision then gives the number flagged.
- */
-export function outcomesAt(row: SweepRow, positives: number, total: number): Outcomes {
-  const caught = Math.round(row.recall * positives)
-  const flagged = row.precision === 0 ? 0 : Math.round(caught / row.precision)
-  const falseAlarms = flagged - caught
-  const missed = positives - caught
-  const cleared = total - positives - falseAlarms
-  return { caught, falseAlarms, missed, cleared, flagged }
-}
-
-/** Scale outcome counts to a fixed volume (e.g. per 1,000 orders), keeping the parts summing to it. */
-export function perVolume(o: Outcomes, total: number, volume = 1000): Outcomes {
-  const parts = [o.caught, o.falseAlarms, o.missed, o.cleared].map((v) => (v / total) * volume)
-  const floored = parts.map(Math.floor)
-  let remainder = volume - floored.reduce((a, b) => a + b, 0)
-  // Largest-remainder rounding so the four parts always add up to `volume`.
-  const order = parts
-    .map((v, i) => ({ i, frac: v - Math.floor(v) }))
-    .sort((a, b) => b.frac - a.frac)
-  for (const { i } of order) {
-    if (remainder <= 0) break
-    floored[i] = (floored[i] ?? 0) + 1
-    remainder -= 1
-  }
-  const [caught = 0, falseAlarms = 0, missed = 0, cleared = 0] = floored
-  return { caught, falseAlarms, missed, cleared, flagged: caught + falseAlarms }
 }
 
 /** The sweep row whose threshold is closest to `t`. */
