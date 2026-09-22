@@ -1,0 +1,52 @@
+{
+  "dataset": {
+    "rows": 6819,
+    "columns": 96,
+    "features": 95,
+    "positive_share": 0.0323,
+    "source": "fin-w4-shape",
+    "positive_share_source": "deck-pca-s1"
+  },
+  "cleaning": {
+    "minor_capped": 15,
+    "capped_total": 16,
+    "severe_dropped": 8,
+    "duplicate_dropped": 1,
+    "source": "fin-w4-groups"
+  },
+  "split": {
+    "train_rows": 5455,
+    "test_rows": 1364,
+    "features": 85,
+    "duplicate_pair_max_diff": 0.0,
+    "source": "pipeline-fin-split"
+  },
+  "result": {
+    "model": "XGBoost",
+    "test_f1": 0.568,
+    "test_recall": 0.568,
+    "pr_auc": 0.49,
+    "caught": 25,
+    "test_positives": 44,
+    "challenge": "Data Scarcity & Measurement Noise",
+    "strategy": "Baseline Model Robustness",
+    "source": "deck-final-s5",
+    "detail_source": "deck-final-s7"
+  },
+  "derived_confusion": {
+    "tn": 1301,
+    "fp": 19,
+    "fn": 19,
+    "tp": 25,
+    "source": "derived-fin-cm"
+  },
+  "team": {
+    "members": [
+      "Ankit Kumar",
+      "Aswin Shriram Thiagarajan",
+      "Arthunya Kanoklertwongse",
+      "Divya Gopal"
+    ],
+    "source": "deck-final-s1"
+  }
+}

@@ -1,0 +1,164 @@
+[
+  {
+    "id": "ops-w5-balance",
+    "file": "AIT506_Week5_Operational_Model_Selection.ipynb",
+    "location": "cell 5 (In [5])",
+    "note": "Class distribution table for the train and test splits."
+  },
+  {
+    "id": "pipeline-ops-rows",
+    "file": "Week4_CEROP_Pipeline_Integration_FIXED_v3.ipynb",
+    "location": "cell 14",
+    "note": "DataCo rows before and after removing the Nov-Dec 2017 collection artefact."
+  },
+  {
+    "id": "ops-w6-shapes",
+    "file": "AIT506_Week6_Operations_Model_Tuning.ipynb",
+    "location": "cell 4 (In [9])",
+    "note": "Corrected (v2) train/test shapes, 27 features, late-delivery rate."
+  },
+  {
+    "id": "ops-w6-validation",
+    "file": "AIT506_Week6_Operations_Model_Tuning.ipynb",
+    "location": "cell 6 (In [10])",
+    "note": "Stratified 80/20 development/validation split of the training set."
+  },
+  {
+    "id": "ops-w5-shapes",
+    "file": "AIT506_Week5_Operational_Model_Selection.ipynb",
+    "location": "cell 3 (In [4])",
+    "note": "Week 5 input shapes: 35 features, later found to include 8 leaking Order Status columns (see Week 6 notebook, cell 0)."
+  },
+  {
+    "id": "ops-w5-comparison",
+    "file": "AIT506_Week5_Operational_Model_Selection.ipynb",
+    "location": "cell 11 (In [10])",
+    "note": "Test-set metrics for LR, RF and linear SVM on the Week 5 (35-feature) data."
+  },
+  {
+    "id": "ops-w5-confusion",
+    "file": "AIT506_Week5_Operational_Model_Selection.ipynb",
+    "location": "cell 24 (In [17])",
+    "note": "Confusion-matrix counts (TN, FP, FN, TP) for the three Week 5 models."
+  },
+  {
+    "id": "ops-w5-cv",
+    "file": "AIT506_Week5_Operational_Model_Selection.ipynb",
+    "location": "cell 16 (In [13])",
+    "note": "5-fold stratified cross-validation on the training set."
+  },
+  {
+    "id": "ops-w5-rbf",
+    "file": "AIT506_Week5_Operational_Model_Selection.ipynb",
+    "location": "cell 18 (In [14])",
+    "note": "Optional RBF SVM trained on a 20,000-row stratified sample."
+  },
+  {
+    "id": "ops-w5-importance",
+    "file": "AIT506_Week5_Operational_Model_Selection.ipynb",
+    "location": "cell 20 (In [15])",
+    "note": "Top-15 Random Forest impurity importances (Week 5 model, 35-feature set)."
+  },
+  {
+    "id": "ops-w6-search",
+    "file": "AIT506_Week6_Operations_Model_Tuning.ipynb",
+    "location": "cell 8 (In [11])",
+    "note": "RandomizedSearchCV: 25 candidates x 3 folds on a 50,000-row stratified sample."
+  },
+  {
+    "id": "ops-w6-threshold",
+    "file": "AIT506_Week6_Operations_Model_Tuning.ipynb",
+    "location": "cell 10 (In [12])",
+    "note": "Validation sweep 0.10-0.90; selected threshold = max validation F1 (top five printed)."
+  },
+  {
+    "id": "ops-w6-sweep-csv",
+    "file": "week6_operations_results/week6_operations_threshold_results.csv",
+    "location": "written by AIT506_Week6_Operations_Model_Tuning.ipynb cell 19 (In [17])",
+    "note": "Full 81-step validation sweep saved by the notebook; matches the printed top five."
+  },
+  {
+    "id": "ops-w6-test",
+    "file": "AIT506_Week6_Operations_Model_Tuning.ipynb",
+    "location": "cell 13 (In [14])",
+    "note": "Final test results and confusion matrices; the test set is opened only here."
+  },
+  {
+    "id": "fin-w4-shape",
+    "file": "WEEK_4_\u2014_Financial_Layer_Cleaning_(Taiwan_Bankruptcy_Dataset).ipynb",
+    "location": "cell 0",
+    "note": "Taiwanese Bankruptcy dataset loaded from UCI (id 572): rows x columns incl. target."
+  },
+  {
+    "id": "fin-w4-groups",
+    "file": "WEEK_4_\u2014_Financial_Layer_Cleaning_(Taiwan_Bankruptcy_Dataset).ipynb",
+    "location": "cell 2 and cell 5",
+    "note": "Outlier tiers: 15 minor + 1 borderline capped at p99, 8 severe dropped."
+  },
+  {
+    "id": "pipeline-fin-split",
+    "file": "Week4_CEROP_Pipeline_Integration_FIXED_v3.ipynb",
+    "location": "cells 8 and 10",
+    "note": "Stratified 80/20 split, cleaned, scaled: final train/test shapes and feature count."
+  },
+  {
+    "id": "deck-pca-s1",
+    "file": "CEROP_PCA_Class_Activity.pptx",
+    "location": "slide 1",
+    "note": "Team deck headline: 95 financial features, 3.23% positive class."
+  },
+  {
+    "id": "deck-final-s5",
+    "file": "CEROP_Unified_Risk_Intelligence.pptx",
+    "location": "slide 5",
+    "note": "Dual-domain summary: financial XGBoost test F1 and recall; chosen strategy."
+  },
+  {
+    "id": "deck-final-s7",
+    "file": "CEROP_Unified_Risk_Intelligence.pptx",
+    "location": "slide 7",
+    "note": "Financial PR-AUC and '25/44 at-risk firms caught' on the test split."
+  },
+  {
+    "id": "derived-fin-cm",
+    "file": "derived",
+    "location": "from deck-final-s5, deck-final-s7, pipeline-fin-split",
+    "note": "TP and FN from '25/44'; FP is the unique count that reproduces F1 = 0.568; TN = 1,364 - 44 - FP."
+  },
+  {
+    "id": "deck-final-s1",
+    "file": "CEROP_Unified_Risk_Intelligence.pptx",
+    "location": "slide 1",
+    "note": "Team roster (Group 4)."
+  },
+  {
+    "id": "deck-activity-s2",
+    "file": "CEROP_Class_Activity_5_Slides_Final.pptx",
+    "location": "slide 2",
+    "note": "Team constraints: class imbalance, and datasets that cannot be merged row by row."
+  },
+  {
+    "id": "pipeline-gscpi",
+    "file": "Week4_CEROP_Pipeline_Integration_FIXED_v3.ipynb",
+    "location": "cell 21 (markdown)",
+    "note": "GSCPI joins only the operations layer: the bankruptcy data has no date field."
+  },
+  {
+    "id": "pipeline-fin-functions",
+    "file": "Week4_CEROP_Pipeline_Integration_FIXED_v3.ipynb",
+    "location": "cell 3 (code)",
+    "note": "Financial feature engineering: 3 ROA variants -> Profitability_Composite; adds Compounding_Leverage_Risk; drops exact duplicate column."
+  },
+  {
+    "id": "deck-final-s6",
+    "file": "CEROP_Unified_Risk_Intelligence.pptx",
+    "location": "slide 6",
+    "note": "Cross-layer decision matrix: what to do when one or both layers flag."
+  },
+  {
+    "id": "deck-final-s3",
+    "file": "CEROP_Unified_Risk_Intelligence.pptx",
+    "location": "slide 3",
+    "note": "Shared protocol across both layers (split, search, metric, calibration)."
+  }
+]
