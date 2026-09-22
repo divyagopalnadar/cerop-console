@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Extract every figure the console shows from the team's executed artefacts.
 
-The notebooks, decks and CSVs stay outside this repository. Point SOURCE_DIR at
+The notebooks, the saved CSV and the team report stay outside this repository. Point SOURCE_DIR at
 the folder that holds them (default: ~/Downloads) and run:
 
     python3 scripts/extract_data.py [SOURCE_DIR]
 
 Each emitted record carries a `source` id that resolves to an entry in
 src/data/sources.json (file, cell or slide, and what was read there). Values are
-parsed from printed cell output or saved result files, never typed in by hand.
+parsed from printed cell output or saved result files. The written report's
+tables are transcribed in report_facts.py and re-verified against the PDF text.
 """
 
 from __future__ import annotations
@@ -17,7 +18,6 @@ import csv
 import json
 import re
 import sys
-import zipfile
 from pathlib import Path
 
 SOURCE_DIR = Path(sys.argv[1] if len(sys.argv) > 1 else Path.home() / "Downloads")
@@ -28,9 +28,6 @@ NB_OPS_TUNE = "AIT506_Week6_Operations_Model_Tuning.ipynb"
 NB_PIPELINE = "Week4_CEROP_Pipeline_Integration_FIXED_v3.ipynb"
 NB_FIN_CLEAN = "WEEK_4_—_Financial_Layer_Cleaning_(Taiwan_Bankruptcy_Dataset).ipynb"
 CSV_SWEEP = "week6_operations_results/week6_operations_threshold_results.csv"
-DECK_FINAL = "CEROP_Unified_Risk_Intelligence.pptx"
-DECK_PCA = "CEROP_PCA_Class_Activity.pptx"
-DECK_ACTIVITY = "CEROP_Class_Activity_5_Slides_Final.pptx"
 
 sources: dict[str, dict[str, str]] = {}
 
@@ -63,14 +60,6 @@ def num(pattern: str, text: str, cast=float):
     if not match:
         raise ValueError(f"pattern not found: {pattern}")
     return cast(match.group(1).replace(",", ""))
-
-
-def slide_text(deck: str, slide: int) -> str:
-    with zipfile.ZipFile(SOURCE_DIR / deck) as z:
-        xml = z.read(f"ppt/slides/slide{slide}.xml").decode("utf-8")
-    paragraphs = re.findall(r"<a:p>(.*?)</a:p>", xml, re.S)
-    lines = ["".join(re.findall(r"<a:t>(.*?)</a:t>", p, re.S)) for p in paragraphs]
-    return "\n".join(line for line in lines if line.strip())
 
 
 def parse_table(text: str, header_start: str) -> list[list[str]]:
@@ -248,12 +237,6 @@ def operations() -> dict:
         for k in ("precision", "recall", "f1"):
             assert abs(round(row[k], 4) - printed[k]) < 1e-9, (printed, row)
 
-    # Validation positives: recall steps of 1/N imply N. Cross-check with rate.
-    distinct = sorted({r["recall"] for r in sweep}, reverse=True)
-    gap = distinct[0] - distinct[1]
-    val_pos = round(1 / gap)
-    assert abs(val_pos / dataset["validation_rows"] - dataset["late_rate"]) < 1e-3
-
     # Week 6 final test (cell 13)
     out = cell_output(NB_OPS_TUNE, 13)
     s_test = source(
@@ -282,11 +265,6 @@ def operations() -> dict:
         threshold=dict(
             selected=selected, top5=top5, source=s_thr,
             sweep=sweep, sweep_source=s_sweep,
-            validation_positives=val_pos,
-            validation_positives_note=(
-                "Derived: recall moves in steps of 1/N across the sweep, giving N = "
-                f"{val_pos}; agrees with {dataset['validation_rows']} x {dataset['late_rate']}."
-            ),
         ),
         final_test=final,
     )
@@ -325,77 +303,13 @@ def financial() -> dict:
         source=s_split,
     )
 
-    # Class balance: the deck gives 3.23% positive; the final deck gives 44 test positives.
-    pca = slide_text(DECK_PCA, 1)
-    positive_share = num(r"([\d.]+)%\npositive class", pca) / 100
-    s_pca = source(
-        "deck-pca-s1", DECK_PCA, "slide 1",
-        "Team deck headline: 95 financial features, 3.23% positive class.",
-    )
-
-    s5 = slide_text(DECK_FINAL, 5)
-    s7 = slide_text(DECK_FINAL, 7)
-    s_s5 = source(
-        "deck-final-s5", DECK_FINAL, "slide 5",
-        "Dual-domain summary: financial XGBoost test F1 and recall; chosen strategy.",
-    )
-    s_s7 = source(
-        "deck-final-s7", DECK_FINAL, "slide 7",
-        "Financial PR-AUC and '25/44 at-risk firms caught' on the test split.",
-    )
-    fin_block = s5.split("Operational Risk Layer")[0]
-    caught, positives = map(int, re.search(r"(\d+)/(\d+) At-Risk Firms Caught", s7).groups())
-    result = dict(
-        model=re.search(r"Financial Risk Layer \((\w+)\)", s5).group(1),
-        test_f1=num(r"Test F1-Score\n([\d.]+)", fin_block),
-        test_recall=num(r"Test Recall\n([\d.]+)", fin_block),
-        pr_auc=num(r"PR-AUC: ([\d.]+)", s7),
-        caught=caught,
-        test_positives=positives,
-        challenge=re.search(r"Primary Challenge: (.+)", fin_block).group(1).replace("&amp;", "&"),
-        strategy=re.search(r"Selected Strategy: (.+)", fin_block).group(1),
-        source=s_s5,
-        detail_source=s_s7,
-    )
-    s1 = slide_text(DECK_FINAL, 1)
-    team = re.search(r"Group 4(.+?)Westcliff", s1).group(1)
-    team_members = [n.strip() for n in team.split("•")]
-
-    # Reconstruct the confusion matrix. Recall = TP / positives is given exactly.
-    # Precision is the only unknown; search FP for the value that reproduces F1 to 3 dp.
-    tp = caught
-    fn = positives - caught
-    candidates = []
-    for fp in range(0, split["test_rows"] - positives + 1):
-        prec = tp / (tp + fp)
-        rec = tp / positives
-        f1 = 2 * prec * rec / (prec + rec)
-        if round(f1, 3) == result["test_f1"]:
-            candidates.append(fp)
-    assert len(candidates) == 1, candidates
-    fp = candidates[0]
-    tn = split["test_rows"] - positives - fp
-    s_derived = source(
-        "derived-fin-cm", "derived", "from deck-final-s5, deck-final-s7, pipeline-fin-split",
-        "TP and FN from '25/44'; FP is the unique count that reproduces F1 = 0.568; "
-        "TN = 1,364 - 44 - FP.",
-    )
-
     return dict(
-        dataset=dict(
-            rows=rows, columns=cols, features=cols - 1, positive_share=positive_share,
-            source=s_shape, positive_share_source=s_pca,
-        ),
+        dataset=dict(rows=rows, columns=cols, features=cols - 1, source=s_shape),
         cleaning=dict(
             minor_capped=minor, capped_total=capped, severe_dropped=severe,
             duplicate_dropped=1, source=s_groups,
         ),
         split=split,
-        result=result,
-        derived_confusion=dict(tn=tn, fp=fp, fn=fn, tp=tp, source=s_derived),
-        team=dict(members=team_members, source=source(
-            "deck-final-s1", DECK_FINAL, "slide 1", "Team roster (Group 4).",
-        )),
     )
 
 
@@ -405,57 +319,41 @@ def cell_source(nb_name: str, index: int) -> str:
 
 
 def cross_layer() -> dict:
-    act = slide_text(DECK_ACTIVITY, 2)
-    separate = re.search(r"(Separate datasets: .+)", act).group(1)
-    imbalance = re.search(r"(Class imbalance: .+)", act).group(1)
     gscpi = cell_source(NB_PIPELINE, 21).split("\n", 1)[1].strip()
     gscpi = gscpi.split(". ")[0] + "."
     fin_fn = cell_source(NB_PIPELINE, 3)
     assert "Profitability_Composite" in fin_fn and "Compounding_Leverage_Risk" in fin_fn
-    separation = dict(
-        separate=separate,
-        imbalance=imbalance,
-        gscpi=gscpi,
-        source=source(
-            "deck-activity-s2", DECK_ACTIVITY, "slide 2",
-            "Team constraints: class imbalance, and datasets that cannot be merged row by row.",
-        ),
-        gscpi_source=source(
-            "pipeline-gscpi", NB_PIPELINE, "cell 21 (markdown)",
-            "GSCPI joins only the operations layer: the bankruptcy data has no date field.",
-        ),
-        engineering_source=source(
-            "pipeline-fin-functions", NB_PIPELINE, "cell 3 (code)",
-            "Financial feature engineering: 3 ROA variants -> Profitability_Composite; "
-            "adds Compounding_Leverage_Risk; drops exact duplicate column.",
-        ),
-    )
-    s6 = slide_text(DECK_FINAL, 6)
-    s_s6 = source(
-        "deck-final-s6", DECK_FINAL, "slide 6",
-        "Cross-layer decision matrix: what to do when one or both layers flag.",
-    )
-    lines = s6.splitlines()
-    playbook = []
-    for label in ("High Dual Risk", "Financial Only", "Operational Only"):
-        i = lines.index(label)
-        playbook.append(dict(label=label, action=lines[i + 1]))
-    s3 = slide_text(DECK_FINAL, 3)
-    protocol = re.findall(r"\d\. (.+)\n(.+)", s3)
     return dict(
-        separation=separation,
-        playbook=playbook,
-        playbook_source=s_s6,
-        protocol=[dict(step=a, detail=b) for a, b in protocol],
-        protocol_source=source(
-            "deck-final-s3", DECK_FINAL, "slide 3",
-            "Shared protocol across both layers (split, search, metric, calibration).",
+        separation=dict(
+            gscpi=gscpi,
+            gscpi_source=source(
+                "pipeline-gscpi", NB_PIPELINE, "cell 21 (markdown)",
+                "GSCPI joins only the operations layer: the bankruptcy data has no date field.",
+            ),
+            engineering_source=source(
+                "pipeline-fin-functions", NB_PIPELINE, "cell 3 (code)",
+                "Financial feature engineering: 3 ROA variants -> Profitability_Composite; "
+                "adds Compounding_Leverage_Risk; drops exact duplicate column.",
+            ),
         ),
     )
 
 
 def main() -> None:
-    data = dict(operations=operations(), financial=financial(), crossLayer=cross_layer())
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import report_facts
+
+    data = dict(
+        operations=operations(),
+        financial=financial(),
+        crossLayer=cross_layer(),
+        report=report_facts.facts(source),
+    )
+    pdf = SOURCE_DIR / report_facts.REPORT
+    try:
+        print("verified", report_facts.verify(pdf), "report values against", pdf.name)
+    except ImportError:
+        print("pypdf not installed: report values were not re-verified against the PDF")
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for key, value in data.items():
         (OUT_DIR / f"{key}.json").write_text(json.dumps(value, indent=2) + "\n")

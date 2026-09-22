@@ -102,42 +102,6 @@
     "note": "Stratified 80/20 split, cleaned, scaled: final train/test shapes and feature count."
   },
   {
-    "id": "deck-pca-s1",
-    "file": "CEROP_PCA_Class_Activity.pptx",
-    "location": "slide 1",
-    "note": "Team deck headline: 95 financial features, 3.23% positive class."
-  },
-  {
-    "id": "deck-final-s5",
-    "file": "CEROP_Unified_Risk_Intelligence.pptx",
-    "location": "slide 5",
-    "note": "Dual-domain summary: financial XGBoost test F1 and recall; chosen strategy."
-  },
-  {
-    "id": "deck-final-s7",
-    "file": "CEROP_Unified_Risk_Intelligence.pptx",
-    "location": "slide 7",
-    "note": "Financial PR-AUC and '25/44 at-risk firms caught' on the test split."
-  },
-  {
-    "id": "derived-fin-cm",
-    "file": "derived",
-    "location": "from deck-final-s5, deck-final-s7, pipeline-fin-split",
-    "note": "TP and FN from '25/44'; FP is the unique count that reproduces F1 = 0.568; TN = 1,364 - 44 - FP."
-  },
-  {
-    "id": "deck-final-s1",
-    "file": "CEROP_Unified_Risk_Intelligence.pptx",
-    "location": "slide 1",
-    "note": "Team roster (Group 4)."
-  },
-  {
-    "id": "deck-activity-s2",
-    "file": "CEROP_Class_Activity_5_Slides_Final.pptx",
-    "location": "slide 2",
-    "note": "Team constraints: class imbalance, and datasets that cannot be merged row by row."
-  },
-  {
     "id": "pipeline-gscpi",
     "file": "Week4_CEROP_Pipeline_Integration_FIXED_v3.ipynb",
     "location": "cell 21 (markdown)",
@@ -150,15 +114,219 @@
     "note": "Financial feature engineering: 3 ROA variants -> Profitability_Composite; adds Compounding_Leverage_Risk; drops exact duplicate column."
   },
   {
-    "id": "deck-final-s6",
-    "file": "CEROP_Unified_Risk_Intelligence.pptx",
-    "location": "slide 6",
-    "note": "Cross-layer decision matrix: what to do when one or both layers flag."
+    "id": "report-w1-plan",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Project plan (p. 3)",
+    "note": "Week-by-week plan, Weeks 1-8."
   },
   {
-    "id": "deck-final-s3",
-    "file": "CEROP_Unified_Risk_Intelligence.pptx",
-    "location": "slide 3",
-    "note": "Shared protocol across both layers (split, search, metric, calibration)."
+    "id": "report-w2-title",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 2 title page (p. 6)",
+    "note": "Team, course and instructor."
+  },
+  {
+    "id": "report-w2-metrics",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 2, How should performance be measured? (p. 9)",
+    "note": "Why accuracy is not used for the financial layer."
+  },
+  {
+    "id": "report-w2-charter",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 2 charter, Responsibilities (p. 35)",
+    "note": "Each member's responsibility."
+  },
+  {
+    "id": "report-w3-fin",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 3, Financial EDA (pp. 44-45)",
+    "note": "Class balance and top correlates with bankruptcy."
+  },
+  {
+    "id": "report-w3-corr",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 3, Correlation Analysis (p. 45)",
+    "note": "Features most correlated with Bankrupt?."
+  },
+  {
+    "id": "report-w3-sentinel",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 3, sentinel-value tiers (pp. 47-48)",
+    "note": "24 features with sentinel values in three tiers."
+  },
+  {
+    "id": "report-w3-severe",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 3, severe tier list (p. 48)",
+    "note": "Share of records affected in the 8 severe features."
+  },
+  {
+    "id": "report-w3-ops",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 3, Operations EDA key findings (p. 49)",
+    "note": "DataCo size, class balance and strongest numeric correlate."
+  },
+  {
+    "id": "report-w3-mode",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 3, late rate by shipping mode (p. 51)",
+    "note": "Late-delivery rate by shipping mode."
+  },
+  {
+    "id": "report-w3-delay",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 3, text p. 53 and Figure 7 (p. 54)",
+    "note": "Distribution of shipping delays, actual vs scheduled days."
+  },
+  {
+    "id": "report-w3-gscpi",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 3, GSCPI assumption test (p. 55)",
+    "note": "Annual and monthly correlation of GSCPI with late rate."
+  },
+  {
+    "id": "report-w4-features",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 4, Feature Engineering (p. 84)",
+    "note": "Engineered financial features."
+  },
+  {
+    "id": "report-w4-leak",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 4, Data Cleaning (p. 89)",
+    "note": "Leakage columns dropped from DataCo."
+  },
+  {
+    "id": "report-w4-dbscan",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 4, DBSCAN (p. 96)",
+    "note": "Unsupervised anomaly component."
+  },
+  {
+    "id": "report-w4-integration",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 4, Pipeline Integration (p. 103)",
+    "note": "Artefact removal and split sizes."
+  },
+  {
+    "id": "report-w4-gscpi",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 4, GSCPI enrichment (p. 105)",
+    "note": "GSCPI file coverage."
+  },
+  {
+    "id": "report-w4-summary",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 4 changes summary (p. 118)",
+    "note": "Liquidity_Buffer removed as redundant."
+  },
+  {
+    "id": "report-w5-intro",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 5, introduction (p. 124)",
+    "note": "Why the two layers are kept separate."
+  },
+  {
+    "id": "report-w5-fin",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 5, Table 1 (p. 125)",
+    "note": "Financial model comparison, test n = 1,364 with 44 bankrupt."
+  },
+  {
+    "id": "report-w5-fin-rec",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 5, Recommendation (p. 126)",
+    "note": "XGBoost shortlisted, Random Forest kept as backup; 2.3 points per firm."
+  },
+  {
+    "id": "report-w5-ops",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 5, Table 2 (p. 127)",
+    "note": "Operations model comparison (35 features, pre-fix)."
+  },
+  {
+    "id": "report-w6-leak",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6 task notes (p. 134)",
+    "note": "Order Status leak: Cancelled and Suspected Fraud had 0% late; 8 columns removed."
+  },
+  {
+    "id": "report-w6-protocol",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6, introduction (p. 140)",
+    "note": "Shared tuning protocol for both layers."
+  },
+  {
+    "id": "report-w6-partition",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6, Table 1 (p. 141)",
+    "note": "Financial data partition and search size."
+  },
+  {
+    "id": "report-w6-cv",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6, Table 2 (pp. 143-144)",
+    "note": "Selected hyperparameters and cross-validated PR-AUC."
+  },
+  {
+    "id": "report-w6-test",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6, Table 3 (p. 146)",
+    "note": "Financial test-set performance before and after tuning."
+  },
+  {
+    "id": "report-w6-cm",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6, text p. 145 and Figure 5 (p. 148)",
+    "note": "Financial confusion matrices before tuning, after tuning, after calibration."
+  },
+  {
+    "id": "report-w6-rf",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6, Random Forest check and ensemble (p. 148)",
+    "note": "Tuned RF false alarms and the stacking result."
+  },
+  {
+    "id": "report-w6-fa",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6, Test Set Performance (p. 145)",
+    "note": "Recall-targeted threshold: 35 of 44 at 124 false alarms."
+  },
+  {
+    "id": "report-w6-why",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6, Why Tuning Did Not Help (p. 149)",
+    "note": "Signal-to-noise of the search and the scale_pos_weight cap."
+  },
+  {
+    "id": "report-w6-boot",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6, How Much of This Is Real? (p. 150)",
+    "note": "Paired bootstrap of the before/after PR-AUC difference."
+  },
+  {
+    "id": "report-w6-ops",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6, Operations Tables 1-3 (pp. 152-155)",
+    "note": "Operations tuning, threshold and test results."
+  },
+  {
+    "id": "report-w6-synthesis",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6, Cross Layer Synthesis (pp. 155-157)",
+    "note": "Deployment decision for each layer; signals shown side by side."
+  },
+  {
+    "id": "report-w6-merge",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6, Cross Layer Synthesis (p. 156)",
+    "note": "Why the two signals cannot be merged."
+  },
+  {
+    "id": "report-w6-4100",
+    "file": "[AIT506] Group 4 - CEROP.pdf",
+    "location": "Week 6, Cross Layer Synthesis (p. 155)",
+    "note": "About 4,100 more at-risk shipments flagged."
   }
 ]

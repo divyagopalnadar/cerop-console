@@ -1,44 +1,7 @@
 {
   "separation": {
-    "separate": "Separate datasets: financial distress and delivery risk come from different business sources and cannot simply be merged row by row.",
-    "imbalance": "Class imbalance: only about 3% of the Taiwan companies are bankrupt.",
     "gscpi": "GSCPI is merged only with the DataCo operations layer because the Taiwanese Bankruptcy data has no compatible date field.",
-    "source": "deck-activity-s2",
     "gscpi_source": "pipeline-gscpi",
     "engineering_source": "pipeline-fin-functions"
-  },
-  "playbook": [
-    {
-      "label": "High Dual Risk",
-      "action": "Immediate executive intervention and credit suspension required."
-    },
-    {
-      "label": "Financial Only",
-      "action": "Credit limit reduction and financial health monitoring."
-    },
-    {
-      "label": "Operational Only",
-      "action": "Logistics restructuring and supply chain diversification."
-    }
-  ],
-  "playbook_source": "deck-final-s6",
-  "protocol": [
-    {
-      "step": "Stratified 80/20 Split",
-      "detail": "Maintains class ratios in training and validation sets."
-    },
-    {
-      "step": "RandomizedSearchCV",
-      "detail": "Hyperparameter optimization across thousands of configurations."
-    },
-    {
-      "step": "Metric Selection",
-      "detail": "Focused on F1-Score, PR-AUC, and ROC-AUC for imbalanced data."
-    },
-    {
-      "step": "Threshold Calibration",
-      "detail": "Optimization of decision boundaries on validation data only."
-    }
-  ],
-  "protocol_source": "deck-final-s3"
+  }
 }

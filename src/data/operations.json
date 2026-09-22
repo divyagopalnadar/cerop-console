@@ -725,9 +725,7 @@
         "f1": 0.39864183776327655
       }
     ],
-    "sweep_source": "ops-w6-sweep-csv",
-    "validation_positives": 15083,
-    "validation_positives_note": "Derived: recall moves in steps of 1/N across the sweep, giving N = 15083; agrees with 27514 x 0.5482."
+    "sweep_source": "ops-w6-sweep-csv"
   },
   "final_test": [
     {

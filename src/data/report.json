@@ -1,0 +1,656 @@
+{
+  "project": {
+    "name": "CEROP: Cross-Border Enterprise Risk & Operations Predictor",
+    "group": "Group 4",
+    "course": "AIT 506 Machine Learning",
+    "university": "Westcliff University",
+    "instructor": "Prof. Oueichek Ibba",
+    "term": "Summer 2026 (July-August)",
+    "team": [
+      {
+        "name": "Ankit Kumar",
+        "role": "Data infrastructure: loading, cleaning and merging the three datasets; pipeline support for model tuning"
+      },
+      {
+        "name": "Arthunya Kanoklertwongse",
+        "role": "Financial feature engineering, business and risk framing, financial distress classification layer"
+      },
+      {
+        "name": "Aswin Shriram Thiagarajan",
+        "role": "Core ML pipeline and ensemble modelling across both risk layers, model selection and tuning"
+      },
+      {
+        "name": "Divya Gopal",
+        "role": "Executive dashboard design and build, translating model output into a decision-support interface"
+      }
+    ],
+    "source": "report-w2-title",
+    "roles_source": "report-w2-charter"
+  },
+  "financial_eda": {
+    "rows": 6819,
+    "bankrupt": 220,
+    "healthy": 6599,
+    "bankrupt_pct": 3.23,
+    "features": 95,
+    "source": "report-w3-fin",
+    "correlates": [
+      {
+        "feature": "Net Income to Total Assets",
+        "r": -0.315
+      },
+      {
+        "feature": "ROA(A) before interest and % after tax",
+        "r": -0.283
+      },
+      {
+        "feature": "Debt ratio %",
+        "r": 0.25
+      },
+      {
+        "feature": "Current Liability to Assets",
+        "r": 0.194
+      },
+      {
+        "feature": "Borrowing dependency",
+        "r": 0.177
+      }
+    ],
+    "correlates_source": "report-w3-corr",
+    "sentinel": {
+      "total": 24,
+      "minor": 15,
+      "minor_rule": "under 2% of rows; capped at the 99th percentile",
+      "borderline": {
+        "feature": "Interest-bearing debt interest rate",
+        "pct": 3.24,
+        "treatment": "capped"
+      },
+      "severe_rule": "18-88% of rows; dropped",
+      "severe": [
+        {
+          "feature": "Total Asset Growth Rate",
+          "pct": 88.2
+        },
+        {
+          "feature": "Cash Turnover Rate",
+          "pct": 62.2
+        },
+        {
+          "feature": "Research and Development Expense Rate",
+          "pct": 59.1
+        },
+        {
+          "feature": "Inventory Turnover Rate",
+          "pct": 43.2
+        },
+        {
+          "feature": "Quick Asset Turnover Rate",
+          "pct": 34.9
+        },
+        {
+          "feature": "Operating Expense Rate",
+          "pct": 33.5
+        },
+        {
+          "feature": "Current Asset Turnover Rate",
+          "pct": 18.1
+        },
+        {
+          "feature": "Fixed Assets Turnover Frequency",
+          "pct": 18.0
+        }
+      ],
+      "source": "report-w3-sentinel",
+      "severe_source": "report-w3-severe"
+    },
+    "engineered": [
+      {
+        "feature": "Profitability_Composite",
+        "formula": "Mean of ROA(A), ROA(B) and ROA(C)"
+      },
+      {
+        "feature": "Compounding_Leverage_Risk",
+        "formula": "Current Liability to Assets \u00d7 Borrowing dependency"
+      }
+    ],
+    "removed_feature": {
+      "feature": "Liquidity_Buffer",
+      "why": "Removed as redundant: an exact linear copy of two ratios already in the data."
+    },
+    "final_features": 85,
+    "engineered_source": "report-w4-features",
+    "removed_source": "report-w4-summary",
+    "class_ratio": 30.0,
+    "class_ratio_source": "report-w6-why"
+  },
+  "operations_eda": {
+    "rows": 180519,
+    "features": 53,
+    "late_pct": 54.8,
+    "days_real_r": 0.4,
+    "source": "report-w3-ops",
+    "shipping_mode": [
+      {
+        "mode": "First Class",
+        "late_pct": 95.3
+      },
+      {
+        "mode": "Second Class",
+        "late_pct": 76.6
+      },
+      {
+        "mode": "Same Day",
+        "late_pct": 45.7
+      },
+      {
+        "mode": "Standard Class",
+        "late_pct": 38.1
+      }
+    ],
+    "other_dimensions": "Region, category and segment all sit between 53% and 57% late.",
+    "shipping_mode_source": "report-w3-mode",
+    "delay": [
+      {
+        "days": -2,
+        "pct": 12.0
+      },
+      {
+        "days": -1,
+        "pct": 12.0
+      },
+      {
+        "days": 0,
+        "pct": 18.7
+      },
+      {
+        "days": 1,
+        "pct": 33.6
+      },
+      {
+        "days": 2,
+        "pct": 15.9
+      },
+      {
+        "days": 3,
+        "pct": 3.9
+      },
+      {
+        "days": 4,
+        "pct": 3.9
+      }
+    ],
+    "delay_source": "report-w3-delay",
+    "leakage_columns": [
+      "Delivery Status",
+      "Days for shipping (real)",
+      "shipping date (DateOrders)"
+    ],
+    "leakage_source": "report-w4-leak",
+    "order_status": {
+      "columns_removed": 8,
+      "zero_late": [
+        "Cancelled",
+        "Suspected Fraud"
+      ],
+      "features_after": 27,
+      "source": "report-w6-leak"
+    },
+    "after_artifact": 171962,
+    "integration_source": "report-w4-integration"
+  },
+  "gscpi": {
+    "coverage": "January 1998 to June 2026",
+    "records": 342,
+    "annual_r": 0.41,
+    "annual_n": 4,
+    "monthly_r": -0.06,
+    "monthly_n": 37,
+    "monthly_late_range": [
+      51.9,
+      56.8
+    ],
+    "supported": false,
+    "bankruptcy_note": "The bankruptcy data has no date field, so the assumption could not be tested on the financial layer.",
+    "source": "report-w3-gscpi",
+    "records_source": "report-w4-gscpi"
+  },
+  "dbscan": {
+    "features": [
+      "Benefit per order",
+      "Order Item Profit Ratio",
+      "Sales",
+      "Order Item Discount Rate"
+    ],
+    "clusters": 3,
+    "noise": 18,
+    "source": "report-w4-dbscan"
+  },
+  "financial_w5": {
+    "n": 1364,
+    "positives": 44,
+    "models": [
+      {
+        "model": "Logistic Regression",
+        "accuracy": 0.878,
+        "precision": 0.186,
+        "recall": 0.818,
+        "f1": 0.303,
+        "roc_auc": 0.902
+      },
+      {
+        "model": "Random Forest",
+        "accuracy": 0.966,
+        "precision": 0.478,
+        "recall": 0.5,
+        "f1": 0.489,
+        "roc_auc": 0.943
+      },
+      {
+        "model": "XGBoost",
+        "accuracy": 0.97,
+        "precision": 0.535,
+        "recall": 0.523,
+        "f1": 0.529,
+        "roc_auc": 0.95
+      }
+    ],
+    "equal_recall": {
+      "recall": 0.818,
+      "caught": 36,
+      "xgb_false_alarms": 82,
+      "lr_false_alarms": 140,
+      "fewer_pct": 41
+    },
+    "decision": "XGBoost shortlisted, with Random Forest kept as the backup.",
+    "firm_recall_points": 2.3,
+    "source": "report-w5-fin",
+    "decision_source": "report-w5-fin-rec"
+  },
+  "operations_w5": {
+    "rf_cv_f1": 0.728,
+    "rf_cv_sd": 0.002,
+    "source": "report-w5-ops"
+  },
+  "financial_w6": {
+    "partition": [
+      {
+        "split": "Tuning fit",
+        "rows": 4364,
+        "bankrupt": 141,
+        "use": "Cross-validated hyperparameter search"
+      },
+      {
+        "split": "Validation",
+        "rows": 1091,
+        "bankrupt": 35,
+        "use": "Model choice and threshold calibration"
+      },
+      {
+        "split": "Test (sealed)",
+        "rows": 1364,
+        "bankrupt": 44,
+        "use": "One final evaluation"
+      }
+    ],
+    "search": {
+      "draws": 40,
+      "folds": 5,
+      "fits": 200,
+      "scoring": "average_precision",
+      "space": 15360,
+      "coverage_pct": 0.26
+    },
+    "source": "report-w6-partition",
+    "cv": [
+      {
+        "model": "XGBoost, tuned",
+        "pr_auc": 0.4257,
+        "sd": 0.0791
+      },
+      {
+        "model": "Random Forest, tuned",
+        "pr_auc": 0.3994,
+        "sd": null
+      },
+      {
+        "model": "XGBoost, Week 5 configuration",
+        "pr_auc": 0.3895,
+        "sd": 0.059
+      }
+    ],
+    "params": [
+      {
+        "param": "colsample_bytree",
+        "tuned": "0.8",
+        "week5": "0.8"
+      },
+      {
+        "param": "learning_rate",
+        "tuned": "0.05",
+        "week5": "0.1"
+      },
+      {
+        "param": "max_depth",
+        "tuned": "8",
+        "week5": "4"
+      },
+      {
+        "param": "min_child_weight",
+        "tuned": "1",
+        "week5": "1"
+      },
+      {
+        "param": "n_estimators",
+        "tuned": "100",
+        "week5": "300"
+      },
+      {
+        "param": "scale_pos_weight",
+        "tuned": "10",
+        "week5": "29.95"
+      },
+      {
+        "param": "subsample",
+        "tuned": "0.9",
+        "week5": "0.8"
+      }
+    ],
+    "cv_source": "report-w6-cv",
+    "test": [
+      {
+        "row": "XGB \u00b7 Week 5 published",
+        "group": "XGBoost",
+        "threshold": 0.5,
+        "precision": 0.535,
+        "recall": 0.523,
+        "f1": 0.529,
+        "roc_auc": 0.95,
+        "pr_auc": 0.476,
+        "caught": 23
+      },
+      {
+        "row": "XGB \u00b7 Week 5 config (refit)",
+        "group": "XGBoost",
+        "threshold": 0.5,
+        "precision": 0.568,
+        "recall": 0.568,
+        "f1": 0.568,
+        "roc_auc": 0.947,
+        "pr_auc": 0.49,
+        "caught": 25,
+        "deployed": true
+      },
+      {
+        "row": "XGB \u00b7 tuned",
+        "group": "XGBoost",
+        "threshold": 0.5,
+        "precision": 0.489,
+        "recall": 0.523,
+        "f1": 0.505,
+        "roc_auc": 0.946,
+        "pr_auc": 0.425,
+        "caught": 23
+      },
+      {
+        "row": "XGB \u00b7 tuned @ calibrated",
+        "group": "XGBoost",
+        "threshold": 0.335,
+        "precision": 0.382,
+        "recall": 0.591,
+        "f1": 0.464,
+        "roc_auc": 0.946,
+        "pr_auc": 0.425,
+        "caught": 26
+      },
+      {
+        "row": "XGB \u00b7 tuned @ recall \u2265 80%",
+        "group": "XGBoost",
+        "threshold": 0.03,
+        "precision": 0.22,
+        "recall": 0.795,
+        "f1": 0.345,
+        "roc_auc": 0.946,
+        "pr_auc": 0.425,
+        "caught": 35
+      },
+      {
+        "row": "RF \u00b7 tuned",
+        "group": "Random Forest",
+        "threshold": 0.5,
+        "precision": 0.306,
+        "recall": 0.75,
+        "f1": 0.434,
+        "roc_auc": 0.944,
+        "pr_auc": 0.461,
+        "caught": 33
+      },
+      {
+        "row": "RF \u00b7 tuned @ calibrated",
+        "group": "Random Forest",
+        "threshold": 0.791,
+        "precision": 0.429,
+        "recall": 0.477,
+        "f1": 0.452,
+        "roc_auc": 0.944,
+        "pr_auc": 0.461,
+        "caught": 21
+      },
+      {
+        "row": "RF \u00b7 tuned @ recall \u2265 80%",
+        "group": "Random Forest",
+        "threshold": 0.331,
+        "precision": 0.233,
+        "recall": 0.795,
+        "f1": 0.361,
+        "roc_auc": 0.944,
+        "pr_auc": 0.461,
+        "caught": 35
+      },
+      {
+        "row": "Stacking (XGB + RF)",
+        "group": "Stacking",
+        "threshold": 0.5,
+        "precision": 0.229,
+        "recall": 0.795,
+        "f1": 0.355,
+        "roc_auc": 0.943,
+        "pr_auc": 0.454,
+        "caught": 35
+      },
+      {
+        "row": "Stacking @ calibrated",
+        "group": "Stacking",
+        "threshold": 0.949,
+        "precision": 0.415,
+        "recall": 0.5,
+        "f1": 0.454,
+        "roc_auc": 0.943,
+        "pr_auc": 0.454,
+        "caught": 22
+      },
+      {
+        "row": "Stacking @ recall \u2265 80%",
+        "group": "Stacking",
+        "threshold": 0.518,
+        "precision": 0.235,
+        "recall": 0.795,
+        "f1": 0.363,
+        "roc_auc": 0.943,
+        "pr_auc": 0.454,
+        "caught": 35
+      }
+    ],
+    "test_source": "report-w6-test",
+    "false_alarms": {
+      "rf_tuned": 75,
+      "xgb_tuned_recall80": 124
+    },
+    "false_alarms_source": "report-w6-rf",
+    "recall80_source": "report-w6-fa",
+    "matrices": [
+      {
+        "label": "Before tuning (Week 5 config)",
+        "threshold": 0.5,
+        "tn": 1301,
+        "fp": 19,
+        "fn": 19,
+        "tp": 25
+      },
+      {
+        "label": "Tuned @ 0.50",
+        "threshold": 0.5,
+        "tn": 1296,
+        "fp": 24,
+        "fn": 21,
+        "tp": 23
+      },
+      {
+        "label": "Tuned @ calibrated",
+        "threshold": 0.335,
+        "tn": 1278,
+        "fp": 42,
+        "fn": 18,
+        "tp": 26
+      }
+    ],
+    "matrices_source": "report-w6-cm",
+    "why": {
+      "spread": 0.0498,
+      "fold_sd": 0.0649,
+      "snr": 0.77,
+      "all_within_1sd": true,
+      "positives_per_fold": 28,
+      "spw_cap": 20,
+      "class_ratio": 30.0,
+      "rerun_spw": 30,
+      "rerun_val_pr_auc": 0.3985,
+      "baseline_val_pr_auc": 0.3794,
+      "winner_val_pr_auc": 0.378
+    },
+    "why_source": "report-w6-why",
+    "bootstrap": {
+      "resamples": 2000,
+      "delta": -0.0652,
+      "ci": [
+        -0.1351,
+        0.0249
+      ],
+      "tuned_wins_pct": 8.8,
+      "firms": 2,
+      "of": 44
+    },
+    "bootstrap_source": "report-w6-boot",
+    "decision": "Keep the Week 5 configuration. The next investment should go into more labelled bankruptcies, not more search."
+  },
+  "operations_w6": {
+    "validation_f1": 0.748,
+    "validation_precision": 0.676,
+    "validation_recall": 0.838,
+    "source": "report-w6-ops",
+    "more_flagged": "about 4,100",
+    "more_flagged_source": "report-w6-4100"
+  },
+  "separation": {
+    "shared": "They do not share a target, a feature set, or even a comparable class balance.",
+    "source": "report-w5-intro",
+    "merge": "Neither layer can be merged into a single score: a firm's balance sheet and a shipment's delivery risk answer different business questions for different stakeholders.",
+    "merge_source": "report-w6-merge"
+  },
+  "protocol": {
+    "steps": [
+      {
+        "step": "Validation split",
+        "detail": "A stratified validation split is carved out of the training data."
+      },
+      {
+        "step": "Search",
+        "detail": "Hyperparameter search scored by a metric matched to each layer's imbalance: average precision for the financial layer, F1 for operations."
+      },
+      {
+        "step": "Calibrate",
+        "detail": "Decision thresholds are calibrated on the validation split only."
+      },
+      {
+        "step": "One sealed evaluation",
+        "detail": "The test set is opened once, so before and after are comparable within each layer."
+      }
+    ],
+    "source": "report-w6-protocol"
+  },
+  "deployment": {
+    "financial": "XGBoost at its Week 5 configuration, threshold 0.50",
+    "operations": "Tuned Random Forest at the calibrated 0.39 threshold",
+    "presentation": "Shown side by side in one CEROP report, never merged into a single score.",
+    "source": "report-w6-synthesis"
+  },
+  "timeline": [
+    {
+      "week": 1,
+      "title": "Team formation",
+      "points": [
+        "Confirmed the datasets and each member's role."
+      ],
+      "source": "report-w1-plan"
+    },
+    {
+      "week": 2,
+      "title": "Frame the problem",
+      "points": [
+        "Framed CEROP as two separate binary classifiers: financial distress and late delivery.",
+        "Chose precision, recall, F1 and AUC-ROC over accuracy: an all-healthy guess would score more than 97% on the bankruptcy data."
+      ],
+      "source": "report-w2-metrics"
+    },
+    {
+      "week": 3,
+      "title": "Get and explore the data",
+      "points": [
+        "Found 24 financial ratios holding sentinel values in the billions; tiered them as 15 minor, 1 borderline and 8 severe.",
+        "Shipping mode was the strongest operations signal: First Class orders were late 95.3% of the time.",
+        "Tested the GSCPI assumption: monthly r = -0.06 over 37 months, so it was not supported."
+      ],
+      "source": "report-w3-gscpi"
+    },
+    {
+      "week": 4,
+      "title": "Prepare the data",
+      "points": [
+        "Split before fitting anything: 5,455 / 1,364 firms and 137,569 / 34,393 orders.",
+        "Dropped the Nov-Dec 2017 artefact (180,519 \u2192 171,962 orders) and three leakage columns.",
+        "Engineered Profitability_Composite and Compounding_Leverage_Risk; 85 financial features.",
+        "DBSCAN on four order-value features found 3 clusters and 18 anomalous transactions."
+      ],
+      "source": "report-w4-integration"
+    },
+    {
+      "week": 5,
+      "title": "Model selection",
+      "points": [
+        "Financial: XGBoost shortlisted (F1 0.529, ROC-AUC 0.950), Random Forest kept as backup.",
+        "At equal 81.8% recall, XGBoost raised 82 false alarms against 140 for Logistic Regression.",
+        "Operations: Random Forest led every metric (F1 0.739) on the 35-feature set."
+      ],
+      "source": "report-w5-fin"
+    },
+    {
+      "week": 6,
+      "title": "Finalize models",
+      "points": [
+        "Found and removed the Order Status leak: 35 \u2192 27 operations features.",
+        "Operations: tuned Random Forest at a 0.39 cutoff lifted test recall to 0.849 and F1 to 0.764.",
+        "Financial: tuning did not transfer (bootstrap 95% CI for \u0394PR-AUC straddles zero); kept the Week 5 configuration."
+      ],
+      "source": "report-w6-synthesis"
+    },
+    {
+      "week": 7,
+      "title": "Deployment specification (planned)",
+      "points": [
+        "Ship the financial layer at its Week 5 configuration and the operations layer tuned and calibrated.",
+        "Surface both signals side by side in one CEROP report; they cannot be merged into one model."
+      ],
+      "source": "report-w6-synthesis"
+    }
+  ]
+}
