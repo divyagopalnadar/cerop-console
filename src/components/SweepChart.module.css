@@ -1,0 +1,144 @@
+.wrap {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.key {
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+}
+
+.refKey {
+  width: 0;
+  height: 12px;
+  border-left: 1.5px solid var(--text);
+}
+
+.plot {
+  position: relative;
+  min-width: 0;
+}
+
+.plot svg {
+  display: block;
+  overflow: visible;
+}
+
+.grid {
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+
+.baseline {
+  stroke: var(--axis);
+  stroke-width: 1;
+}
+
+.tick {
+  fill: var(--text-subtle);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.axisLabel {
+  fill: var(--text-subtle);
+  font-size: 11px;
+}
+
+.refLine {
+  stroke: var(--axis);
+  stroke-width: 1;
+}
+
+.refLabel {
+  fill: var(--text-subtle);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+.endLabel {
+  fill: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.current {
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+
+.crosshair {
+  stroke: var(--text-subtle);
+  stroke-width: 1;
+}
+
+.hit {
+  fill: transparent;
+  cursor: crosshair;
+  touch-action: pan-y;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 2;
+  min-width: 140px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  font-size: 12.5px;
+  pointer-events: none;
+}
+
+.tipTitle {
+  margin-bottom: 4px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.tipRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.tipRow b {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.tipKey {
+  width: 12px;
+  height: 2px;
+  border-radius: 2px;
+}
+
+.tipHint {
+  margin-top: 4px;
+  color: var(--text-subtle);
+  font-size: 11px;
+}

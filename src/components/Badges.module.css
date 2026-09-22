@@ -1,0 +1,52 @@
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px 2px 7px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.status[data-status='review'] {
+  border-color: var(--review-border);
+  background: var(--review-bg);
+  color: var(--review-ink);
+}
+
+.status[data-status='watch'] {
+  border-color: var(--watch-border);
+  background: var(--watch-bg);
+  color: var(--watch-ink);
+}
+
+.status[data-status='cleared'] {
+  border-color: var(--cleared-border);
+  background: var(--cleared-bg);
+  color: var(--cleared-ink);
+}
+
+.layer {
+  display: inline-grid;
+  place-items: center;
+  min-width: 36px;
+  padding: 1px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.layer[data-layer='FIN'] {
+  border-style: solid;
+}
+
+.layer[data-layer='OPS'] {
+  border-style: dashed;
+}

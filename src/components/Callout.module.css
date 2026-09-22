@@ -1,0 +1,42 @@
+.callout {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in oklab, var(--accent) 28%, var(--border));
+  border-radius: var(--radius);
+  background: color-mix(in oklab, var(--accent-soft) 60%, var(--surface));
+  font-size: 13.5px;
+}
+
+.callout[data-tone='caution'] {
+  border-color: var(--watch-border);
+  background: var(--watch-bg);
+}
+
+.icon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--accent-text);
+}
+
+.callout[data-tone='caution'] .icon {
+  color: var(--watch-ink);
+}
+
+.content {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.title {
+  font-weight: 600;
+}
+
+.body {
+  color: var(--text-muted);
+}
+
+.body p + p {
+  margin-top: 6px;
+}

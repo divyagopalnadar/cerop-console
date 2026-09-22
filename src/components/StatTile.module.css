@@ -1,0 +1,43 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.tile[data-tone='accent'] {
+  border-color: color-mix(in oklab, var(--accent) 35%, var(--border));
+  background: color-mix(in oklab, var(--accent-soft) 55%, var(--surface));
+}
+
+.label {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.value {
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.sub {
+  color: var(--text-subtle);
+  font-size: 12.5px;
+}
+
+.source {
+  margin-top: auto;
+  padding-top: 8px;
+}

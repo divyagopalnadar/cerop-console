@@ -1,0 +1,42 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 18px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.tag:hover {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.tag[data-derived] {
+  border-style: dashed;
+}
+
+.file {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.loc {
+  color: var(--text-subtle);
+}
+
+.loc::before {
+  content: '·';
+  margin-right: 6px;
+}
