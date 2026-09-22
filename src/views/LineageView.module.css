@@ -113,11 +113,6 @@
   outline: none;
 }
 
-.table tr[data-derived] code::after {
-  content: ' · derived';
-  color: var(--text-subtle);
-}
-
 .file {
   display: block;
   max-width: 280px;
@@ -158,6 +153,13 @@
 .itemB {
   color: var(--text-muted);
   font-size: 13.5px;
+}
+
+.team {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 24px;
+  margin: 0 0 16px;
 }
 
 .credits {
@@ -203,7 +205,7 @@
     margin-top: 4px;
   }
 
-  .twoCol {
+  .team {
     grid-template-columns: minmax(0, 1fr);
   }
 }

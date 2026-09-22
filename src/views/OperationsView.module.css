@@ -170,6 +170,32 @@
   text-transform: uppercase;
 }
 
+.chosenBox {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  padding: 12px 14px;
+  border-left: 2px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+
+.chosenBox .perHead {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.chosenBox b {
+  color: var(--text);
+}
+
+.na {
+  color: var(--text-subtle);
+  font-style: italic;
+}
+
 .per {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

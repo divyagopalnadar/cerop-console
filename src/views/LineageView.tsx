@@ -2,57 +2,41 @@ import { useEffect, useRef } from 'react'
 import { Card } from '../components/Card'
 import { PageHeader } from '../components/PageHeader'
 import { SourceTag } from '../components/SourceTag'
-import { crossLayer, financial, notInRecord, operations, sources } from '../data'
+import { financial, operations, report, sources } from '../data'
 import { USAGE } from '../data/usage'
 import { int, thr } from '../lib/format'
 import styles from './LineageView.module.css'
 
 const ops = operations
 
+const fin6 = report.financial_w6
+const finCal = fin6.test.find((t) => t.row === 'XGB · tuned @ calibrated')
+
 const PIPELINE = [
   {
     step: 'Split',
-    body: `Stratified 80/20 split with a fixed seed, before anything is fitted. The test set is sealed: ${int(ops.dataset.test_rows)} orders and ${int(financial.split.test_rows)} firms.`,
-    source: ops.dataset.source,
+    body: `Stratified 80/20 split before anything is fitted. The test sets are sealed: ${int(financial.split.test_rows)} firms and ${int(ops.dataset.test_rows)} orders.`,
+    source: financial.split.source,
   },
   {
     step: 'Fit on train only',
-    body: 'Outlier caps, IQR bounds, encoders and scalers learn from the training split and are applied unchanged downstream.',
+    body: 'Outlier caps, IQR bounds, encoders and scalers are learned from the training split and applied unchanged to the test split.',
     source: financial.cleaning.source,
   },
   {
-    step: 'Tune on development folds',
-    body: `A further 80/20 split leaves ${int(ops.dataset.dev_rows)} development rows. RandomizedSearchCV: ${ops.tuning.candidates} candidates × ${ops.tuning.folds} folds, scored on F1.`,
-    source: ops.tuning.source,
+    step: 'Tune on a validation split',
+    body: `Financial: ${int(fin6.partition[0]?.rows ?? 0)} fit / ${int(fin6.partition[1]?.rows ?? 0)} validation rows, ${fin6.search.draws} × ${fin6.search.folds}-fold search on ${fin6.search.scoring}. Operations: ${int(ops.dataset.dev_rows)} / ${int(ops.dataset.validation_rows)} rows, ${ops.tuning.candidates} × ${ops.tuning.folds}-fold search on F1.`,
+    source: fin6.source,
   },
   {
     step: 'Calibrate on validation',
-    body: `Thresholds ${thr(ops.threshold.sweep[0]?.threshold ?? 0.1)}–${thr(ops.threshold.sweep.at(-1)?.threshold ?? 0.9)} swept on ${int(ops.dataset.validation_rows)} validation orders; the best F1 sets the cutoff at ${thr(ops.threshold.selected)}.`,
+    body: `Thresholds are chosen on validation data only: ${thr(ops.threshold.selected)} for operations, and ${finCal?.threshold.toFixed(3) ?? ''} for the tuned financial model, which was not adopted.`,
     source: ops.threshold.source,
   },
   {
     step: 'Open the test set once',
-    body: 'Baseline, tuned, and tuned-plus-calibrated models are scored once on the sealed test set. Nothing is changed afterwards.',
-    source: ops.final_test[0]?.source ?? '',
-  },
-]
-
-const DERIVED = [
-  {
-    what: `Validation positives = ${int(ops.threshold.validation_positives)}`,
-    how: ops.threshold.validation_positives_note,
-  },
-  {
-    what: 'Per-1,000 outcome counts in the threshold explorer',
-    how: 'Caught = recall × validation positives; flagged = caught ÷ precision; scaled to 1,000 with largest-remainder rounding.',
-  },
-  {
-    what: `Financial confusion matrix (TN ${financial.derived_confusion.tn}, FP ${financial.derived_confusion.fp}, FN ${financial.derived_confusion.fn}, TP ${financial.derived_confusion.tp})`,
-    how: 'The only integer solution consistent with 25/44 caught, F1 = 0.568 and 1,364 test firms.',
-  },
-  {
-    what: 'Chance-level PR-AUC and the ≈ 1 : 30 class ratio',
-    how: 'A random ranking scores average precision equal to the positive rate (3.23%); 96.77 ÷ 3.23 ≈ 30.',
+    body: 'Every configuration is scored once on the sealed test set, and nothing is re-tuned afterwards.',
+    source: report.protocol.source,
   },
 ]
 
@@ -70,10 +54,10 @@ export function LineageView({ highlight }: { highlight: string | null }) {
       <PageHeader
         eyebrow="Methodology & lineage"
         title="How the numbers were made, and where each one lives"
-        lead="The same protocol runs on both layers: split first, learn only from training data, tune and calibrate away from the test set, then open the test set once. Every figure in this console traces to the notebook cell, saved result file or slide listed below."
+        lead="The same protocol runs on both layers: split first, learn only from training data, tune and calibrate away from the test set, then open the test set once. Every figure in this console traces to a notebook cell, the saved sweep file or a page of the Group 4 report, listed below."
       />
 
-      <Card eyebrow="Protocol" title="One pass, test set last" footer={<SourceTag id={crossLayer.protocol_source} />}>
+      <Card eyebrow="Protocol" title="One pass, test set last" footer={<SourceTag id={report.protocol.source} />}>
         <ol className={styles.pipeline} role="list">
           {PIPELINE.map((p, i) => (
             <li key={p.step} data-last={i === PIPELINE.length - 1 || undefined}>
@@ -115,7 +99,6 @@ export function LineageView({ highlight }: { highlight: string | null }) {
                     ref={active ? rowRef : undefined}
                     tabIndex={active ? -1 : undefined}
                     aria-current={active || undefined}
-                    data-derived={s.file === 'derived' || undefined}
                   >
                     <th scope="row">
                       <code>{s.id}</code>
@@ -140,34 +123,28 @@ export function LineageView({ highlight }: { highlight: string | null }) {
         </div>
       </Card>
 
-      <div className={styles.twoCol}>
-        <Card eyebrow="Computed, not read" title="Derived values">
-          <ul className={styles.list} role="list">
-            {DERIVED.map((d) => (
-              <li key={d.what}>
-                <p className={styles.itemT}>{d.what}</p>
-                <p className={styles.itemB}>{d.how}</p>
-              </li>
-            ))}
-          </ul>
-        </Card>
-        <Card eyebrow="Left out on purpose" title="Not in the record">
-          <ul className={styles.list} role="list">
-            {notInRecord.map((n) => (
-              <li key={n.item}>
-                <p className={styles.itemT}>{n.item}</p>
-                <p className={styles.itemB}>{n.why}</p>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      </div>
-
-      <Card eyebrow="Credits" title="Team project, AIT 506 Machine Learning" footer={<SourceTag id={financial.team.source} />}>
+      <Card
+        eyebrow="Team"
+        title={`${report.project.group} · ${report.project.course}`}
+        description={`${report.project.university} · ${report.project.instructor} · ${report.project.term}`}
+        footer={
+          <>
+            <SourceTag id={report.project.source} />
+            <SourceTag id={report.project.roles_source} />
+          </>
+        }
+      >
+        <ul className={styles.team} role="list">
+          {report.project.team.map((m) => (
+            <li key={m.name}>
+              <p className={styles.itemT}>{m.name}</p>
+              <p className={styles.itemB}>{m.role}</p>
+            </li>
+          ))}
+        </ul>
         <p className={styles.credits}>
-          CEROP was built by Group 4 at Westcliff University: {financial.team.members.join(', ')}. The modelling
-          work belongs to the team. This console, including its design, data extraction and code, was designed and
-          built by Divya Gopal.
+          The modelling is the team's work. The charter assigns the decision-support dashboard to Divya Gopal, who
+          designed and built this console.
         </p>
       </Card>
     </div>

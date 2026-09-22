@@ -4,11 +4,12 @@ import { ThemeSwitch } from './components/ThemeSwitch'
 import { useHashRoute } from './hooks/useHashRoute'
 import { useTheme } from './hooks/useTheme'
 import { VIEWS, type ViewId } from './lib/routes'
-import { CasesView } from './views/CasesView'
+import { DataView } from './views/DataView'
 import { FinancialView } from './views/FinancialView'
 import { LineageView } from './views/LineageView'
 import { OperationsView } from './views/OperationsView'
 import { OverviewView } from './views/OverviewView'
+import { TimelineView } from './views/TimelineView'
 import styles from './App.module.css'
 
 export const CREDIT =
@@ -114,7 +115,8 @@ export default function App() {
               onThreshold={(t) => navigate('operations', { t }, { replace: true })}
             />
           )}
-          {view === 'cases' && <CasesView />}
+          {view === 'data' && <DataView />}
+          {view === 'timeline' && <TimelineView />}
           {view === 'lineage' && <LineageView highlight={route.params.get('src')} />}
         </div>
       </main>

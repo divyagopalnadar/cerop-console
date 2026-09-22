@@ -1,8 +1,9 @@
 export const VIEWS = [
   { id: 'overview', label: 'Overview' },
+  { id: 'data', label: 'Data & EDA' },
   { id: 'financial', label: 'Financial layer' },
   { id: 'operations', label: 'Operations layer' },
-  { id: 'cases', label: 'Case queue' },
+  { id: 'timeline', label: 'Timeline' },
   { id: 'lineage', label: 'Methodology' },
 ] as const
 

@@ -1,17 +1,16 @@
-import { useId, useMemo, useState } from 'react'
+import { useId, useState } from 'react'
 import { BarList } from '../components/BarList'
 import { Callout } from '../components/Callout'
 import { Card } from '../components/Card'
 import { ConfusionMatrix } from '../components/ConfusionMatrix'
-import { OutcomeBars } from '../components/OutcomeBars'
 import { PageHeader } from '../components/PageHeader'
 import { Segmented } from '../components/Segmented'
 import { SourceTag } from '../components/SourceTag'
 import { StatGrid, StatTile } from '../components/StatTile'
 import { SweepChart } from '../components/SweepChart'
-import { chosenOps, operations } from '../data'
-import { dec, int, pct, signed, thr } from '../lib/format'
-import { nearestRow, outcomesAt, perVolume } from '../lib/metrics'
+import { chosenOps, operations, report } from '../data'
+import { dec, int, pct, thr } from '../lib/format'
+import { nearestRow } from '../lib/metrics'
 import styles from './OperationsView.module.css'
 
 const ops = operations
@@ -38,13 +37,12 @@ interface OperationsViewProps {
 export function OperationsView({ threshold, onThreshold }: OperationsViewProps) {
   const t = parseThreshold(threshold)
   const row = nearestRow(sweep, t)
-  const chosenRow = nearestRow(sweep, ops.threshold.selected)
   const valTotal = ops.dataset.validation_rows
-  const valPos = ops.threshold.validation_positives
-  const per1000 = useMemo(() => perVolume(outcomesAt(row, valPos, valTotal), valTotal), [row, valPos, valTotal])
+  const w6 = report.operations_w6
   const [cmIndex, setCmIndex] = useState(String(ops.final_test.length - 1))
   const cmRow = ops.final_test[Number(cmIndex)] ?? chosenOps
   const baseline = ops.final_test[0] ?? chosenOps
+  const tunedDefault = ops.final_test[1] ?? chosenOps
   const sliderId = useId()
   const w5rf = ops.week5_models.find((m) => m.model === 'Random Forest')
 
@@ -72,7 +70,7 @@ export function OperationsView({ threshold, onThreshold }: OperationsViewProps) 
           sub={`${int(chosenOps.confusion.tp)} of ${int(chosenOps.confusion.tp + chosenOps.confusion.fn)} on the test set`}
           source={chosenOps.source}
         />
-        <StatTile label="Test F1" value={dec(chosenOps.f1)} sub={`${signed(chosenOps.f1 - baseline.f1)} vs corrected baseline`} source={chosenOps.source} />
+        <StatTile label="Test F1" value={dec(chosenOps.f1)} sub={`Corrected baseline: ${dec(baseline.f1)}`} source={chosenOps.source} />
         <StatTile label="Precision" value={pct(chosenOps.precision)} sub="Share of flagged orders that were late" source={chosenOps.source} />
         <StatTile
           label="ROC-AUC · PR-AUC"
@@ -135,42 +133,28 @@ export function OperationsView({ threshold, onThreshold }: OperationsViewProps) 
               <SweepChart sweep={sweep} value={row.threshold} chosen={ops.threshold.selected} onSelect={set} />
             </div>
             <div className={styles.readout}>
+              <p className={styles.perHead}>At threshold {thr(row.threshold)} (validation)</p>
               <dl className={styles.metrics}>
                 {(['precision', 'recall', 'f1'] as const).map((k) => (
                   <div key={k}>
                     <dt>{k === 'f1' ? 'F1' : k[0]?.toUpperCase() + k.slice(1)}</dt>
                     <dd>
                       <span className="num" data-testid={`metric-${k}`}>{dec(row[k])}</span>
-                      <span className={styles.delta}>
-                        {row.threshold === chosenRow.threshold ? 'chosen' : `${signed(row[k] - chosenRow[k])} vs chosen`}
-                      </span>
                     </dd>
                   </div>
                 ))}
               </dl>
-              <p className={styles.perHead}>Per 1,000 validation orders</p>
-              <dl className={styles.per}>
-                <div>
-                  <dt>Flagged</dt>
-                  <dd className="num" data-testid="per-flagged">{per1000.flagged}</dd>
-                </div>
-                <div>
-                  <dt>Caught</dt>
-                  <dd className="num" data-testid="per-caught">{per1000.caught}</dd>
-                </div>
-                <div>
-                  <dt>Missed</dt>
-                  <dd className="num" data-testid="per-missed">{per1000.missed}</dd>
-                </div>
-              </dl>
-              <OutcomeBars o={per1000} />
+              <div className={styles.chosenBox}>
+                <p className={styles.perHead}>Team's choice</p>
+                <p>
+                  <b>{thr(ops.threshold.selected)}</b> had the highest validation F1: {dec(w6.validation_f1)}, with precision{' '}
+                  {dec(w6.validation_precision)} and recall {dec(w6.validation_recall)}. The default 0.50 is marked on
+                  the chart for comparison.
+                </p>
+                <SourceTag id={w6.source} />
+              </div>
             </div>
           </div>
-
-          <p className={styles.fine}>
-            Counts are rebuilt from the sweep: caught = recall × {int(valPos)} late validation orders, flagged = caught ÷
-            precision, then scaled to 1,000. {ops.threshold.validation_positives_note}
-          </p>
 
           <details className={styles.tableToggle}>
             <summary>Show all {sweep.length} thresholds as a table</summary>
@@ -204,8 +188,13 @@ export function OperationsView({ threshold, onThreshold }: OperationsViewProps) 
       <Card
         eyebrow={`Sealed test set · ${int(ops.dataset.test_rows)} orders`}
         title="Tuning versus calibration on the test set"
-        description="Tuning alone barely moved F1. Moving the cutoff is what traded precision for the recall the business wanted."
-        footer={<SourceTag id={ops.final_test[0]?.source ?? chosenOps.source} />}
+        description={`Tuning alone barely moved F1. Moving the cutoff to ${thr(ops.threshold.selected)} cut missed late orders from ${int(tunedDefault.confusion.fn)} to ${int(chosenOps.confusion.fn)}, ${w6.more_flagged} more at-risk shipments flagged, while false alarms rose from ${int(tunedDefault.confusion.fp)} to ${int(chosenOps.confusion.fp)}.`}
+        footer={
+          <>
+            <SourceTag id={ops.final_test[0]?.source ?? chosenOps.source} />
+            <SourceTag id={w6.more_flagged_source} />
+          </>
+        }
       >
         <div className={styles.tableScroll}>
           <table className={styles.table} data-wide>
@@ -223,15 +212,12 @@ export function OperationsView({ threshold, onThreshold }: OperationsViewProps) 
               </tr>
             </thead>
             <tbody>
-              {ops.final_test.map((r, i) => (
+              {ops.final_test.map((r) => (
                 <tr key={r.model} data-chosen={r === chosenOps || undefined}>
                   <th scope="row">{r.model.replace('Calibrated Threshold', 'calibrated cutoff')}</th>
                   <td>{thr(r.threshold)}</td>
                   {(['accuracy', 'precision', 'recall', 'f1', 'roc_auc', 'pr_auc'] as const).map((k) => (
-                    <td key={k}>
-                      {dec(r[k])}
-                      {i > 0 && <span className={styles.cellDelta}>{signed(r[k] - baseline[k])}</span>}
-                    </td>
+                    <td key={k}>{dec(r[k], 4)}</td>
                   ))}
                 </tr>
               ))}
@@ -266,6 +252,7 @@ export function OperationsView({ threshold, onThreshold }: OperationsViewProps) 
               <SourceTag id={ops.week5_models[0]?.source ?? ''} />
               <SourceTag id={ops.week5_models[0]?.cv.source ?? ''} />
               <SourceTag id={ops.week5_rbf.source} />
+              <SourceTag id={report.operations_w5.source} />
             </>
           }
         >
@@ -312,7 +299,7 @@ export function OperationsView({ threshold, onThreshold }: OperationsViewProps) 
                   <th scope="row">{ops.week5_rbf.model}</th>
                   <td>{dec(ops.week5_rbf.recall)}</td>
                   <td>{dec(ops.week5_rbf.f1)}</td>
-                  <td>—</td>
+                  <td className={styles.na}>not run</td>
                 </tr>
               </tbody>
             </table>
